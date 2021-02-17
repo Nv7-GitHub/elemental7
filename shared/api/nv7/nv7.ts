@@ -9,6 +9,7 @@ import { IStore } from "../../store";
 import { Cache } from "./cache";
 import {Element} from "./types";
 import { randomLonelySugg, upAndComingSugg } from "./randomSuggestions";
+import apiV1 from "../../../server/api/api-v1";
 
 export class NV7ElementalAPI extends ElementalBaseAPI implements SuggestionAPI<'dynamic-elemental4'>, RecentCombinationsAPI,  ServerSavefileAPI, OptionsMenuAPI, RandomSuggestionsAPI {
 	public uid: string
@@ -112,6 +113,20 @@ export class NV7ElementalAPI extends ElementalBaseAPI implements SuggestionAPI<'
 				title: "Nv7's Elemental",
 				desc: this.config.description,
 				items: [
+					{
+						type: "button",
+						label: "Get Login Info",
+						onChange: async () => {
+							await this.ui.alert({
+								title: "Username",
+								text: await this.saveFile.get("email"),
+							});
+							await this.ui.alert({
+								title: "Password",
+								text: await this.saveFile.get("password"),
+							});
+						}
+					},
 					{
 						type: "button",
 						label: "Log Out",
