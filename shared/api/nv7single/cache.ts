@@ -1,3 +1,4 @@
+import { ElementalLoadingUi } from "../../elem";
 import { Nv7SingleAPI } from "./nv7single";
 
 export class Cache  {
@@ -134,6 +135,56 @@ export class Cache  {
           resolve(output);
         }
       };
+    });
+  }
+
+  async addAll(pack: string, indexes: string[], vals: any[], ui: ElementalLoadingUi, message: string): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
+      var i = 0;
+      ui.status(message, 0);
+      let transaction: IDBTransaction;
+      let objectStore: IDBObjectStore;
+      var chunkSize = Math.floor((indexes.length-1)/100);
+      if (indexes.length < 200) {
+        chunkSize = Math.floor((indexes.length-1)/10);
+      }
+      if (indexes.length < 20) {
+        for (i = 0; i < indexes.length; i++) {
+          this.add(pack, indexes[i], vals[i]);
+        }
+      }
+      var j = 0;
+      var prom = (res, rej) => {
+        transaction = this.db.transaction([pack], "readwrite");
+        objectStore = transaction.objectStore(pack);
+
+        transaction.oncomplete = function(event) {
+          res();
+        };
+        transaction.onerror = function(event) {
+          rej(event.target);
+        };
+        for (i = 0; i < chunkSize; i++) {
+          objectStore.put({"index": indexes[j+i], "val": vals[j+i]});
+        }
+      }
+      for (j = 0; j < indexes.length-chunkSize; j += chunkSize) {
+        await new Promise<void>(prom);
+        ui.status(message, (j+chunkSize)/indexes.length);
+      }
+
+      transaction = this.db.transaction([pack], "readwrite");
+      objectStore = transaction.objectStore(pack);
+
+      transaction.oncomplete = function(event) {
+        resolve();
+      };
+      transaction.onerror = function(event) {
+        reject(event.target);
+      };
+      for (i = 0; i < (indexes.length - j); i++) {
+        objectStore.put({"index": indexes[j+i], "val": vals[j+i]});
+      }
     });
   }
 }
