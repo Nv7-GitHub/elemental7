@@ -32,6 +32,7 @@ export async function getElem(api: NV7ElementalAPI, id: string): Promise<Elem> {
       ],
       simplestRecipe: elemData.parents,
       usageCount: elemData.uses,
+      discoveries: elemData.foundby,
     },
   };
 }

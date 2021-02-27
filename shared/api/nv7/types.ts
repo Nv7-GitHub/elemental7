@@ -9,6 +9,7 @@ export interface Element {
     comment: string,
     parents: string[],
     uses: number,
+    foundby: number,
 }
 
 export interface SuggestionData {
