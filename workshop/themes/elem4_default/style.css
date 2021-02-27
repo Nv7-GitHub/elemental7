@@ -772,6 +772,10 @@ textarea.elem {
   display: grid;
   grid-template-columns: repeat(auto-fill, 50%);
 }
+.three-column {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 33%);
+}
 .four-column {
   display: grid;
   grid-template-columns: repeat(auto-fill, 25%);

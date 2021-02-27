@@ -163,11 +163,39 @@ export function addElementToGame(element: Elem, sourceLocation?: HTMLElement, du
         infoContainer.querySelector('#info-tier').setAttribute('data-tier-level', Math.floor(element.stats.treeComplexity / 5).toString());
       }
       
+      var numColumns = 0;
       if (typeof element.stats.recipeCount === 'number') {
+        (infoContainer.querySelector('#element-recipe-count') as HTMLElement).style.display = "flex";
         infoContainer.querySelector('#element-recipe-count').innerHTML = element.stats.recipeCount + ' ' + plural(element.stats.recipeCount, 'Recipe');
+        numColumns++;
+      }
+      if (!element.stats.recipeCount) {
+        (infoContainer.querySelector('#element-recipe-count') as HTMLElement).style.display = "none";
       }
       if (typeof element.stats.usageCount === 'number') {
+        (infoContainer.querySelector('#element-usage-count') as HTMLElement).style.display = "flex";
         infoContainer.querySelector('#element-usage-count').innerHTML = element.stats.usageCount + ' ' + plural(element.stats.usageCount, 'Use');
+        numColumns++;
+      }
+      if (!element.stats.usageCount) {
+        (infoContainer.querySelector('#element-usage-count') as HTMLElement).style.display = "none";
+      }
+
+      if (typeof element.stats.discoveries === 'number') {
+        (infoContainer.querySelector('#element-discovery-count') as HTMLElement).style.display = "flex";
+        infoContainer.querySelector('#element-discovery-count').innerHTML = element.stats.discoveries + ' ' + (element.stats.discoveries == 1 ? "Discovery" : "Discoveries");
+        numColumns++;
+      }
+      if (!element.stats.discoveries) {
+        (infoContainer.querySelector('#element-discovery-count') as HTMLElement).style.display = "none";
+      }
+      
+      if (numColumns == 3) {
+        (infoContainer.querySelector('#element-recipe-div') as HTMLDivElement).classList.remove("two-column");
+        (infoContainer.querySelector('#element-recipe-div') as HTMLDivElement).classList.add("three-column");
+      } else {
+        (infoContainer.querySelector('#element-recipe-div') as HTMLDivElement).classList.remove("three-column");
+        (infoContainer.querySelector('#element-recipe-div') as HTMLDivElement).classList.add("two-column");
       }
 
       infoContainer.querySelector('#element-comments').innerHTML = (element.stats?.comments || []).map(x => {
