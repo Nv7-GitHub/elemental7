@@ -30,8 +30,9 @@ export async function getElem(api: NV7ElementalAPI, id: string): Promise<Elem> {
           comment: elemData.comment
         }
       ],
-      simplestRecipe: elemData.parents
-    }
+      simplestRecipe: elemData.parents,
+      usageCount: elemData.uses,
+    },
   };
 }
 
