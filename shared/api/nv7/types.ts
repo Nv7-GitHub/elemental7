@@ -10,6 +10,7 @@ export interface Element {
     parents: string[],
     uses: number,
     foundby: number,
+    complexity: number,
 }
 
 export interface SuggestionData {

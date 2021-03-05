@@ -33,6 +33,7 @@ export async function getElem(api: NV7ElementalAPI, id: string): Promise<Elem> {
       simplestRecipe: elemData.parents,
       usageCount: elemData.uses,
       discoveries: elemData.foundby,
+      treeComplexity: elemData.complexity,
     },
   };
 }
@@ -47,12 +48,21 @@ export async function getCombination(api: NV7ElementalAPI, elem1: string, elem2:
 }
 
 export async function downloadElems(api: NV7ElementalAPI, ui: ElementalLoadingUi) {
-  await loadElems(api, ui);
+  ui.status("Getting Database Date");
+  let downloadTime = api.saveFile.get("downloadTime", 0);
+  let needsDownload = (Date.now() - (downloadTime*1000)) > (60*60*24*7) // A week since last downloaded
 
-  ui.status("Loading Savefile", 0)
-  let found = await getFound(api);
+  if (!needsDownload) {
+    await loadElems(api, ui);
+
+    ui.status("Loading Savefile", 0)
+    let found = await getFound(api);
+    needsDownload = ((found.length+30) - Object.keys(api.elemCache).length) > 50
+  } else {
+    api.saveFile.set("downloadTime", Math.floor(Date.now()/1000))
+  }
   
-  if (((found.length+30) - Object.keys(api.elemCache).length) > 50) {
+  if (needsDownload) {
     ui.status("Downloading Elements", 0)
     var resp = await fetch(api.prefix + "get_all/" + api.uid);
     ui.status("Downloading Elements", 0.5);
