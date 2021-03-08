@@ -13,8 +13,8 @@ export async function login(api: NV7ElementalAPI, ui?: ElementalLoadingUi): Prom
         parts: [
           {
             id: "email",
-            type: "email",
-            placholder: "example@example.com",
+            type: "text",
+            placholder: "MyEpicUsername",
             required: true,
           },
           {
