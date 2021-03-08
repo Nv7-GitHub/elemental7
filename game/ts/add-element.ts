@@ -17,7 +17,8 @@ import { tutorial1visible, holdingElement, elementContainer, setTutorial1Visible
 // Adds an element and has most element logic
 export function addElementToGame(element: Elem, sourceLocation?: HTMLElement, duringLoad?: boolean) {
   if(!element) return;
-  const alreadyExistingDom = document.querySelector(`[data-element="${element.id}"]`) as HTMLElement;
+  let escapedId = element.id.replaceAll("\n", "\\n")
+  const alreadyExistingDom = document.querySelector(`[data-element="${escapedId}"]`) as HTMLElement;
   
   if (alreadyExistingDom) {
     incrementStatistic('rediscoveries');
@@ -256,7 +257,7 @@ export function addElementToGame(element: Elem, sourceLocation?: HTMLElement, du
     }
   });
 
-  dom.setAttribute('data-element', element.id);
+  dom.setAttribute('data-element', escapedId);
 
   const categoryName = element.display.categoryName || element.display.color || 'none';
   let categoryDiv = elementContainer.querySelector(`[data-category="${categoryName}"]`);
