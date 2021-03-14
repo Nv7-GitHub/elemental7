@@ -17,7 +17,8 @@ import { tutorial1visible, holdingElement, elementContainer, setTutorial1Visible
 // Adds an element and has most element logic
 export function addElementToGame(element: Elem, sourceLocation?: HTMLElement, duringLoad?: boolean) {
   if(!element) return;
-  let escapedId = element.id.replaceAll("\n", "\\n")
+  let escapedId = element.id.replaceAll("\n", "\\n");
+  escapedId = escapedId.replaceAll('"', "'");
   const alreadyExistingDom = document.querySelector(`[data-element="${escapedId}"]`) as HTMLElement;
   
   if (alreadyExistingDom) {
