@@ -9,10 +9,8 @@ interface ServerEntry {
 }
 
 export const builtInOfficialServers = [
-  'https://nv7haven.tk',        // FOR MERGE, MOVE TO "MOVE HERE" COMMENT
-  'https://main.elemental4.net',
-  'https://anarchy.elemental4.net',
-  // 'https://infinity.elemental4.net', // wonder what that is ;)
+  'https://nv7haven.tk',
+  'https://nv7haven.tk/single',
 ];
 export const builtInInternalServers = [
   // 'internal:singleplayer',
@@ -26,10 +24,6 @@ export const builtInDevInternalServers = [
 ];
 export const builtInThirdPartyServers = [
   'https://elemental-reborn.tk',      // cannot suggest, need google auth
-  // 'https://dev.elemental5.net/api',// cannot suggest, uses a very different system, server too unstable to default
-  // 'https://e4api.ledomsoft.com',   // api isn't written
-  // MOVE HERE
-  'https://nv7haven.tk/single',
 ];
 export const allBuiltInServers = [
   ...builtInOfficialServers,

@@ -1,3 +1,8 @@
+## Elemental 6.0 (2021-02-15)
+
+### First Elemental 6!
+- Elemental 6 is now a fork of Elemental 4!
+
 ## Elemental 4.4.1 (2021-02-15)
 
 ### i am stupid.
