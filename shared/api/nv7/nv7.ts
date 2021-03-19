@@ -135,7 +135,15 @@ export class NV7ElementalAPI extends ElementalBaseAPI implements SuggestionAPI<'
 							await this.saveFile.set("password", "default");
 							await this.ui.reloadSelf();
 						}
-					}
+					},
+					{
+						type: "button",
+						label: "Refresh Cache",
+						onChange: async () => {
+							await this.saveFile.set("downloadTime", 0)
+							await this.ui.reloadSelf();
+						}
+					},
 				]
 			},
 		];
