@@ -15,7 +15,7 @@ import Color from "color";
 import { tutorial1visible, holdingElement, elementContainer, setTutorial1Visible, setTutorial2Visible, suggestLeftElem, suggestRightElem, dropHoldingElement, suggestContainer, suggestOther1Elem, suggestOther2Elem, suggestOther3Elem, suggestOther1Downvote, suggestOther2Downvote, suggestOther3Downvote, suggestOtherHeader, suggestHint, suggestResultElem, holdingRect, infoContainer, setSuggestResult, setInfoOpen, setHoldingRect, setHoldingElement, setHoldingElementDom } from "./element-game";
 
 // Adds an element and has most element logic
-export function addElementToGame(element: Elem, sourceLocation?: HTMLElement, duringLoad?: boolean) {
+export function createElement(element: Elem, sourceLocation?: HTMLElement, duringLoad?: boolean): any[] {
   if(!element) return;
   let escapedId = element.id.replaceAll("\n", "\\n");
   escapedId = escapedId.replaceAll('"', "'");
@@ -281,13 +281,17 @@ export function addElementToGame(element: Elem, sourceLocation?: HTMLElement, du
     }, 1000);
   }
 
-  categoryDiv.appendChild(dom);
-
   if(sourceLocation) {
     elementPopAnimation(element, sourceLocation, dom, true).then(() => {
       dom.style.opacity = '1';
     })
   }
+  return [categoryDiv, dom];
+}
+
+export function addElementToGame(element: Elem, sourceLocation?: HTMLElement, duringLoad?: boolean) {
+  let doms = createElement(element, sourceLocation, duringLoad);
+  doms[0].appendChild(doms[1]);
 }
 
 export function showSuggestion(element: Elem, element2: Elem) {
