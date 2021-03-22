@@ -1,3 +1,8 @@
+## Elemental 6.1.1 (2021-03-22)
+
+### Engine
+- Fixed animations I broke in the last update
+
 ## Elemental 6.1.0 (2021-03-22)
 
 ### Engine
