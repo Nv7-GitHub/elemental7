@@ -281,17 +281,17 @@ export function createElement(element: Elem, sourceLocation?: HTMLElement, durin
     }, 1000);
   }
 
-  if(sourceLocation) {
-    elementPopAnimation(element, sourceLocation, dom, true).then(() => {
-      dom.style.opacity = '1';
-    })
-  }
   return [categoryDiv, dom];
 }
 
 export function addElementToGame(element: Elem, sourceLocation?: HTMLElement, duringLoad?: boolean) {
   let doms = createElement(element, sourceLocation, duringLoad);
   doms[0].appendChild(doms[1]);
+  if(sourceLocation) {
+    elementPopAnimation(element, sourceLocation, doms[1], true).then(() => {
+      doms[1].style.opacity = '1';
+    })
+  }
 }
 
 export function showSuggestion(element: Elem, element2: Elem) {
