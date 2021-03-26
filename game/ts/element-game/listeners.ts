@@ -8,6 +8,7 @@ import { addElementToGame } from "../add-element";
 import { incrementStatistic } from "../statistics";
 import DomToImage from 'dom-to-image';
 import { capitalize } from "@reverse/string";
+import {maxElementNameLength} from "../element-game";
 
 export function closeSuggestionMenu() {
   if(suggestContainer.classList.contains('animate-panel')) {
@@ -77,8 +78,8 @@ export async function submitSuggestion() {
   const api = getAPI('suggestion');
     if(api) {
       const suggestTextarea = document.querySelector('textarea.elem') as HTMLTextAreaElement;
-      suggestTextarea.value = (suggestTextarea.value.slice(0, 50).replace(/^ |( ) +/, '$1')).split(' ').map(capitalize).join(' ');
-      while(suggestTextarea.scrollHeight > 80) {
+      suggestTextarea.value = (suggestTextarea.value.slice(0, maxElementNameLength).replace(/^ |( ) +/, '$1')).split(' ').map(capitalize).join(' ');
+      while(suggestTextarea.scrollHeight > maxElementNameLength) {
         if(suggestTextarea.value.length === 0) {
           return;
         }

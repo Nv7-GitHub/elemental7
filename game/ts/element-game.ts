@@ -13,7 +13,7 @@ import { getElementMargin } from "./utils";
 import { closeSuggestionMenu, openSuggestionMenu, shareSuggestion, submitSuggestion } from "./element-game/listeners";
 import { startSearch } from "./element-game/search";
 
-const maxElementNameLength = 240;
+export const maxElementNameLength = 240;
 export let elementContainer: HTMLElement;
 export let infoContainer: HTMLElement;
 export let infoContainerContainer: HTMLElement;
@@ -152,7 +152,7 @@ export function InitElementGameUi() {
   }
   const suggestTextarea = document.querySelector('textarea.elem') as HTMLTextAreaElement;
   suggestTextarea.addEventListener('input', (x) => {
-    suggestTextarea.value = (suggestTextarea.value.slice(0, 50).replace(/^ |( ) +/, '$1')).split(' ').map(capitalize).join(' ');
+    suggestTextarea.value = (suggestTextarea.value.slice(0, maxElementNameLength).replace(/^ |( ) +/, '$1')).split(' ').map(capitalize).join(' ');
     while(suggestTextarea.value.length > maxElementNameLength) {
       if(suggestTextarea.value.length === 0) {
         return;
