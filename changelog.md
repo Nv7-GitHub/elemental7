@@ -1,3 +1,8 @@
+## Elemental 6.1.2 (2021-03-26)
+
+### Engine
+- Make max element name length 240
+
 ## Elemental 6.1.1 (2021-03-22)
 
 ### Engine
