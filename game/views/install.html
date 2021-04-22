@@ -1,4 +1,4 @@
-<title>Elemental 4 DLC Installer</title>
+<title>Elemental 7 DLC Installer</title>
 <body style="font-family:sans-serif;padding:80px">
 <noscript>JavaScript Required</noscript></body>
 <script>
@@ -26,9 +26,9 @@
     }
     if (running) {
       localStorage.setItem('workshop_add', JSON.stringify({ type, url, date: Date.now() }));
-      document.body.innerHTML = '<h1>Success</h1><p>The install request was sent to the running Elemental 4 instance.<br>You can now close this tab.</p>';
+      document.body.innerHTML = '<h1>Success</h1><p>The install request was sent to the running Elemental 7 instance.<br>You can now close this tab.</p>';
     } else {
-      document.body.innerHTML = '<h1>Success</h1><p>Opening Elemental 4 to process the request.<br>Please wait</p>';
+      document.body.innerHTML = '<h1>Success</h1><p>Opening Elemental 7 to process the request.<br>Please wait</p>';
       localStorage.setItem('workshop_add', JSON.stringify({ type, url, date: Date.now() }));
       location.href = '/'
     }
