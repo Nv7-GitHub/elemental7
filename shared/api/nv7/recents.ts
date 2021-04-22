@@ -4,6 +4,9 @@ import { NV7ElementalAPI } from "./nv7";
 export async function getRecents(api: NV7ElementalAPI): Promise<RecentCombination[]> {
   let resp = await fetch(api.prefix + "recents")
   let data = await resp.json();
+  if (!data) {
+    data = [];
+  }
   for (var i = 0; i < data.length; i++) {
     data[i].recipe = data[i].Recipe;
     data[i].result = data[i].Result;

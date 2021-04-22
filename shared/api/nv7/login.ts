@@ -13,8 +13,8 @@ export async function login(api: NV7ElementalAPI, ui?: ElementalLoadingUi): Prom
         parts: [
           {
             id: "email",
-            type: "email",
-            placholder: "example@example.com",
+            type: "text",
+            placholder: "MyEpicUsername",
             required: true,
           },
           {
@@ -115,7 +115,7 @@ export async function login(api: NV7ElementalAPI, ui?: ElementalLoadingUi): Prom
       }
     }
   } else {
-    ui.status("Authenticated", 0);
+    ui.status("Authenticating", 0);
     resp = await fetch(api.prefix + "login_user/" + encodeURIComponent(email) + "/" + encodeURIComponent(password))
     ui.status("Authenticating", 0.5);
     data = await resp.json();

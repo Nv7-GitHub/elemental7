@@ -1,4 +1,4 @@
-import { Elem, ElementalBaseAPI, ElementalLoadingUi, ServerStats, SuggestionAPI, SuggestionResponse, SuggestionRequest, Suggestion, ServerSavefileAPI, ServerSavefileEntry, SuggestionColorInformation, ElementalColorPalette, ThemedPaletteEntry, applyColorTransform, RecentCombinationsAPI, RecentCombination, OptionsMenuAPI, OptionsSection, OptionTypes } from "../../elem";
+import { Elem, ElementalBaseAPI, ElementalLoadingUi, ServerStats, SuggestionAPI, SuggestionResponse, SuggestionRequest, Suggestion, ServerSavefileAPI, ServerSavefileEntry, SuggestionColorInformation, ElementalColorPalette, ThemedPaletteEntry, applyColorTransform, RecentCombinationsAPI, RecentCombination, OptionsMenuAPI, OptionsSection, OptionTypes, RandomSuggestionsAPI } from "../../elem";
 import Color from 'color';
 import {login} from "./login";
 import {foundElement, getFound} from "./savefile";
@@ -8,8 +8,10 @@ import {getRecents, waitForNew} from "./recents";
 import { IStore } from "../../store";
 import { Cache } from "./cache";
 import {Element} from "./types";
+import { randomLonelySugg, upAndComingSugg } from "./randomSuggestions";
+import apiV1 from "../../../server/api/api-v1";
 
-export class NV7ElementalAPI extends ElementalBaseAPI implements SuggestionAPI<'dynamic-elemental4'>, RecentCombinationsAPI,  ServerSavefileAPI, OptionsMenuAPI {
+export class NV7ElementalAPI extends ElementalBaseAPI implements SuggestionAPI<'dynamic-elemental4'>, RecentCombinationsAPI,  ServerSavefileAPI, OptionsMenuAPI, RandomSuggestionsAPI {
 	public uid: string
 	public saveFile;
 	public ui;
@@ -90,6 +92,14 @@ export class NV7ElementalAPI extends ElementalBaseAPI implements SuggestionAPI<'
 		return waitForNew(this);
 	}
 
+	async randomLonelySuggestion(): Promise<string[]> {
+		return await randomLonelySugg(this);
+	}
+
+	async upAndComingSuggestion(): Promise<string[]> {
+		return await upAndComingSugg(this);
+	}
+
 	lookupCustomPaletteColor(basePalette: Record<ElementalColorPalette, ThemedPaletteEntry>, string: string): Color {
     const [base, ...x] = string.split('_') 
 		const [saturation, lightness] = x.map(y => parseFloat(y));
@@ -105,13 +115,35 @@ export class NV7ElementalAPI extends ElementalBaseAPI implements SuggestionAPI<'
 				items: [
 					{
 						type: "button",
+						label: "Get Login Info",
+						onChange: async () => {
+							await this.ui.alert({
+								title: "Username",
+								text: await this.saveFile.get("email"),
+							});
+							await this.ui.alert({
+								title: "Password",
+								text: await this.saveFile.get("password"),
+							});
+						}
+					},
+					{
+						type: "button",
 						label: "Log Out",
 						onChange: async () => {
 							await this.saveFile.set("email", "default");
 							await this.saveFile.set("password", "default");
 							await this.ui.reloadSelf();
 						}
-					}
+					},
+					{
+						type: "button",
+						label: "Refresh Cache",
+						onChange: async () => {
+							await this.saveFile.set("downloadTime", 0)
+							await this.ui.reloadSelf();
+						}
+					},
 				]
 			},
 		];

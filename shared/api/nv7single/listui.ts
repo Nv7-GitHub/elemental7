@@ -63,12 +63,20 @@ export function  listUI(api: Nv7SingleAPI): OptionsItem[] {
             } catch (e) {
               await api.cache.init(api);
             }
-            ui.status("Installing Pack", 0)
+            ui.status("Processing Pack", 0)
+            await new Promise<void>((resolve, reject) => {
+              setTimeout(() => {
+                resolve();
+              }, 10);
+            });
             let keys = Object.keys(dat);
+            let indexes = new Array(keys.length);
+            let vals = new Array(keys.length);
             for (let j = 0; j < keys.length; j++) {
-              await api.cache.add(info.id, keys[j], dat[keys[j]]);
-              ui.status("Installing Pack", j/keys.length);
+              indexes[j] = keys[j]
+              vals[j] = dat[keys[j]];
             }
+            await api.cache.addAll(info.id, indexes, vals, ui, "Installing Pack");
             ui.status("Setting Up Pack", 0);
             let packs = api.saveFile.get("packs", []) as PackInfo[]
             let isIn = false;

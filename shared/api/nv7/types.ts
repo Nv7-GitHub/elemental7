@@ -8,6 +8,9 @@ export interface Element {
     pioneer: string,
     comment: string,
     parents: string[],
+    uses: number,
+    foundby: number,
+    complexity: number,
 }
 
 export interface SuggestionData {

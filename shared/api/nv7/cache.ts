@@ -1,3 +1,4 @@
+import { ElementalLoadingUi } from "../../elem";
 import { Element } from "./types";
 
 export class Cache  {
@@ -88,6 +89,56 @@ export class Cache  {
       request.onsuccess = function(event: any) {
         resolve(request.result);
       };
+    });
+  }
+
+  async storeAll(elements: Element[], ui: ElementalLoadingUi, message: string): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
+      var i = 0;
+      ui.status(message, 0);
+      let transaction: IDBTransaction;
+      let objectStore: IDBObjectStore;
+      var chunkSize = Math.floor((elements.length-1)/100);
+      if (elements.length < 200) {
+        chunkSize = Math.floor((elements.length-1)/10);
+      }
+      if (elements.length < 20) {
+        for (i = 0; i < elements.length; i++) {
+          this.store(elements[i]);
+        }
+      }
+      var j = 0;
+      var prom = (res, rej) => {
+        transaction = this.db.transaction(["Elements"], "readwrite");
+        objectStore = transaction.objectStore("Elements");
+
+        transaction.oncomplete = function(event) {
+          res();
+        };
+        transaction.onerror = function(event) {
+          rej(event.target);
+        };
+        for (i = 0; i < chunkSize; i++) {
+          objectStore.put(elements[j+i]);
+        }
+      }
+      for (j = 0; j < elements.length-chunkSize; j += chunkSize) {
+        await new Promise<void>(prom);
+        ui.status(message, (j+chunkSize)/elements.length);
+      }
+
+      transaction = this.db.transaction(["Elements"], "readwrite");
+      objectStore = transaction.objectStore("Elements");
+
+      transaction.oncomplete = function(event) {
+        resolve();
+      };
+      transaction.onerror = function(event) {
+        reject(event.target);
+      };
+      for (i = 0; i < (elements.length - j); i++) {
+        objectStore.put(elements[j+i]);
+      }
     });
   }
 }

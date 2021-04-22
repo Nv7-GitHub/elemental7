@@ -30,8 +30,11 @@ export async function getElem(api: NV7ElementalAPI, id: string): Promise<Elem> {
           comment: elemData.comment
         }
       ],
-      simplestRecipe: elemData.parents
-    }
+      simplestRecipe: elemData.parents,
+      usageCount: elemData.uses,
+      discoveries: elemData.foundby,
+      treeComplexity: elemData.complexity,
+    },
   };
 }
 
@@ -45,6 +48,32 @@ export async function getCombination(api: NV7ElementalAPI, elem1: string, elem2:
 }
 
 export async function downloadElems(api: NV7ElementalAPI, ui: ElementalLoadingUi) {
+  ui.status("Getting Database Date");
+  let downloadTime = api.saveFile.get("downloadTime", 0);
+  let needsDownload = (Date.now() - (downloadTime*1000)) > (60*60*24*7) // A week since last downloaded
+
+  if (!needsDownload) {
+    await loadElems(api, ui);
+
+    ui.status("Loading Savefile", 0)
+    let found = await getFound(api);
+    needsDownload = ((found.length+30) - Object.keys(api.elemCache).length) > 50
+  } else {
+    api.saveFile.set("downloadTime", Math.floor(Date.now()/1000))
+  }
+  
+  if (needsDownload) {
+    ui.status("Downloading Elements", 0)
+    var resp = await fetch(api.prefix + "get_all/" + api.uid);
+    ui.status("Downloading Elements", 0.5);
+    var dat: Element[] = await resp.json();
+    await api.cache.storeAll(dat, ui, "Saving Elements");
+
+    await loadElems(api, ui);
+  }
+}
+
+async function loadElems(api: NV7ElementalAPI, ui: ElementalLoadingUi): Promise<void> {
   ui.status("Reading Elements", 0);
   var i: any;
   let elems = await api.cache.getAllElements();
@@ -53,21 +82,5 @@ export async function downloadElems(api: NV7ElementalAPI, ui: ElementalLoadingUi
     api.elemCache[elems[i].name] = elems[i];
     ui.status("Reading Elements", 0.5+(i+1/elems.length/2));
   }
-  ui.status("Loading Savefile", 0)
-  let found = await getFound(api);
-  ui.status("Downloading Elements", 0);
-  var id: string;
-  for (i in found) {
-    id = found[i];
-    ui.status("Downloading Elements", i/found.length);
-    if (!(id in api.elemCache)) {
-      var elemData: Element = await api.cache.get(id);
-      if (!elemData) {
-        var req = await fetch(api.prefix + "get_elem/" + encodeURIComponent(id));
-        elemData = await req.json();
-        await api.cache.store(elemData);
-      }
-      api.elemCache[id] = elemData
-    }
-  }
+  return;
 }

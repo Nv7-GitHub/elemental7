@@ -7,7 +7,7 @@ import { delay, delayFrame, escapeHTML } from "../../shared/shared";
 import { SingleplayerAPI } from "./api-singleplayer";
 import { AlertDialog, ConfirmDialog, PromptDialog, CustomDialog } from "./dialog";
 import { ClearElementGameUi} from "./element-game";
-import { addElementToGame } from "./add-element";
+import { addElementToGame, createElement } from "./add-element";
 import { InitElementNews } from "./element-game/recents";
 import { createLoadingUi } from "./loading";
 import { canCreateSaveFile, canDeleteSaveFile, canRenameSaveFile, getActiveSaveFile, getAPISaveFile, getAPISaveFiles, getOwnedElements, getServer, installServer, processBaseUrl, setActiveSaveFile } from "./savefile";
@@ -22,6 +22,7 @@ import { DebugAllColorsAPI } from "../../shared/api/internal/internal-all-colors
 import { BlankExampleAPI } from "../../shared/api/blank";
 import { disposeServerConfigGui, reRenderServerConfigGui } from "./settings-server-config";
 import { ChunkedStore } from "../../shared/store-chunk";
+import { startRandomSuggestions } from "./element-game/randomSuggestions";
 
 // @ts-ignore
 class IHateTypescript extends ElementalBaseAPI {
@@ -197,6 +198,9 @@ export async function connectApi(baseUrl: string, config: ElementalConfig, ui?: 
 
     await onSaveFileLoad(ui);
 
+    ui.status("Starting Random Suggestions");
+    await startRandomSuggestions();
+
     ui.status('Starting Statistics');
 
     await startStatistics();
@@ -235,19 +239,36 @@ export async function setAPISaveFile(id: string) {
 }
 
 async function onSaveFileLoad(ui: ElementalLoadingUi) {
-  ui.status('Loading Elements');
+  ui.status('Creating Elements');
   const ownedElements = await getOwnedElements(currentAPI);
   const elementsToAdd = await Promise.all(ownedElements.map(id => currentAPI.getElement(id)));
 
+  let elementData: Record<string, HTMLElement[]> = {};
+  let elementCategories: Record<string, HTMLElement> = {};
+
   for (let i = 0; i < elementsToAdd.length; i++) {
     if (i % 500 === 0) {
-      ui.status('Loading Elements', i / elementsToAdd.length)
+      ui.status('Creating Elements', i / elementsToAdd.length)
       await delay(1);
     }
-    addElementToGame(elementsToAdd[i], null, true);
+    let doms = createElement(elementsToAdd[i], null, true);
+    let ky = doms[0].getAttribute("data-category")
+    elementCategories[ky] = doms[0];
+    if (ky in elementData) {
+      elementData[ky].push(doms[1]);
+    } else {
+      elementData[ky] = [doms[1]];
+    }
   }
 
-  ui.status('Loading Elements', 1);
+  ui.status("Loading Elements", 0);
+
+  let keys = Object.keys(elementCategories);
+  for (var i = 0; i < keys.length; i++) {
+    elementCategories[keys[i]].append(...elementData[keys[i]]);
+    ui.status('Loading Elements', i / keys.length)
+    await delay(1);
+  }
 
   // try and wait if a ton of elements exist
   await delayFrame();

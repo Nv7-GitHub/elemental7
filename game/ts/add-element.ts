@@ -15,9 +15,11 @@ import Color from "color";
 import { tutorial1visible, holdingElement, elementContainer, setTutorial1Visible, setTutorial2Visible, suggestLeftElem, suggestRightElem, dropHoldingElement, suggestContainer, suggestOther1Elem, suggestOther2Elem, suggestOther3Elem, suggestOther1Downvote, suggestOther2Downvote, suggestOther3Downvote, suggestOtherHeader, suggestHint, suggestResultElem, holdingRect, infoContainer, setSuggestResult, setInfoOpen, setHoldingRect, setHoldingElement, setHoldingElementDom } from "./element-game";
 
 // Adds an element and has most element logic
-export function addElementToGame(element: Elem, sourceLocation?: HTMLElement, duringLoad?: boolean) {
+export function createElement(element: Elem, sourceLocation?: HTMLElement, duringLoad?: boolean): any[] {
   if(!element) return;
-  const alreadyExistingDom = document.querySelector(`[data-element="${element.id}"]`) as HTMLElement;
+  let escapedId = element.id.replaceAll("\n", "\\n");
+  escapedId = escapedId.replaceAll('"', "'");
+  const alreadyExistingDom = document.querySelector(`[data-element="${escapedId}"]`) as HTMLElement;
   
   if (alreadyExistingDom) {
     incrementStatistic('rediscoveries');
@@ -85,51 +87,7 @@ export function addElementToGame(element: Elem, sourceLocation?: HTMLElement, du
         
         const api = getAPI('suggestion');
         if (api) {
-          const [base, saturation, lightness] = randomOf([element, element2]).display.color.split('_');
-          
-          setSuggestResult({
-            color: {
-              base: base as any,
-              lightness: parseFloat(lightness),
-              saturation: parseFloat(saturation),
-            },
-            text:'New Element'
-          }, element, element2)
-
-          suggestLeftElem.innerHTML = escapeHTML(element.display.text);
-          suggestLeftElem.className = `elem ${getClassFromDisplay(element.display)}`;
-          suggestRightElem.innerHTML = escapeHTML(element2.display.text);
-          suggestRightElem.className = `elem ${getClassFromDisplay(element2.display)}`;
-
-          document.querySelector('[data-suggest-prompt="left"]').innerHTML = escapeHTML(element.display.text);
-          document.querySelector('[data-suggest-prompt="right"]').innerHTML = escapeHTML(element2.display.text);
-
-          suggestResultElem.style.display = '';
-
-          updateSuggestion();
-
-          suggestContainer.classList.add('animate-prompt');
-          suggestContainer.style.width = '';
-          suggestContainer.style.width = (suggestContainer.offsetWidth+5) + 'px'
-
-          suggestOtherHeader.classList.add('no');
-          suggestOther1Elem.classList.add('no');
-          suggestOther1Downvote.classList.add('no');
-          suggestOther2Elem.classList.add('no');
-          suggestOther2Downvote.classList.add('no');
-          suggestOther3Elem.classList.add('no');
-          suggestOther3Downvote.classList.add('no');
-
-          suggestHint.classList.add('animate-in');
-          if (!getConfigBoolean('tutorial2', false)) {
-            setTutorial2Visible(true);
-            document.querySelector('#tutorial2').classList.add('tutorial-visible');
-            (document.querySelector('#tutorial2') as HTMLElement).style.display = 'block';
-          }
-          if (getConfigBoolean('always-suggest', false)) {
-            suggestContainer.style.width = '486px'
-            document.querySelector('.suggest-label').dispatchEvent(new MouseEvent('click'));
-          }
+          showSuggestion(element, element2);
         }
       }
     } else {
@@ -207,11 +165,39 @@ export function addElementToGame(element: Elem, sourceLocation?: HTMLElement, du
         infoContainer.querySelector('#info-tier').setAttribute('data-tier-level', Math.floor(element.stats.treeComplexity / 5).toString());
       }
       
+      var numColumns = 0;
       if (typeof element.stats.recipeCount === 'number') {
+        (infoContainer.querySelector('#element-recipe-count') as HTMLElement).style.display = "flex";
         infoContainer.querySelector('#element-recipe-count').innerHTML = element.stats.recipeCount + ' ' + plural(element.stats.recipeCount, 'Recipe');
+        numColumns++;
+      }
+      if (!element.stats.recipeCount) {
+        (infoContainer.querySelector('#element-recipe-count') as HTMLElement).style.display = "none";
       }
       if (typeof element.stats.usageCount === 'number') {
+        (infoContainer.querySelector('#element-usage-count') as HTMLElement).style.display = "flex";
         infoContainer.querySelector('#element-usage-count').innerHTML = element.stats.usageCount + ' ' + plural(element.stats.usageCount, 'Use');
+        numColumns++;
+      }
+      if (!element.stats.usageCount) {
+        (infoContainer.querySelector('#element-usage-count') as HTMLElement).style.display = "none";
+      }
+
+      if (typeof element.stats.discoveries === 'number') {
+        (infoContainer.querySelector('#element-discovery-count') as HTMLElement).style.display = "flex";
+        infoContainer.querySelector('#element-discovery-count').innerHTML = element.stats.discoveries + ' ' + (element.stats.discoveries == 1 ? "Discovery" : "Discoveries");
+        numColumns++;
+      }
+      if (!element.stats.discoveries) {
+        (infoContainer.querySelector('#element-discovery-count') as HTMLElement).style.display = "none";
+      }
+      
+      if (numColumns == 3) {
+        (infoContainer.querySelector('#element-recipe-div') as HTMLDivElement).classList.remove("two-column");
+        (infoContainer.querySelector('#element-recipe-div') as HTMLDivElement).classList.add("three-column");
+      } else {
+        (infoContainer.querySelector('#element-recipe-div') as HTMLDivElement).classList.remove("three-column");
+        (infoContainer.querySelector('#element-recipe-div') as HTMLDivElement).classList.add("two-column");
       }
 
       infoContainer.querySelector('#element-comments').innerHTML = (element.stats?.comments || []).map(x => {
@@ -272,7 +258,7 @@ export function addElementToGame(element: Elem, sourceLocation?: HTMLElement, du
     }
   });
 
-  dom.setAttribute('data-element', element.id);
+  dom.setAttribute('data-element', escapedId);
 
   const categoryName = element.display.categoryName || element.display.color || 'none';
   let categoryDiv = elementContainer.querySelector(`[data-category="${categoryName}"]`);
@@ -295,11 +281,63 @@ export function addElementToGame(element: Elem, sourceLocation?: HTMLElement, du
     }, 1000);
   }
 
-  categoryDiv.appendChild(dom);
+  return [categoryDiv, dom];
+}
 
+export function addElementToGame(element: Elem, sourceLocation?: HTMLElement, duringLoad?: boolean) {
+  let doms = createElement(element, sourceLocation, duringLoad);
+  doms[0].appendChild(doms[1]);
   if(sourceLocation) {
-    elementPopAnimation(element, sourceLocation, dom, true).then(() => {
-      dom.style.opacity = '1';
+    elementPopAnimation(element, sourceLocation, doms[1], true).then(() => {
+      doms[1].style.opacity = '1';
     })
+  }
+}
+
+export function showSuggestion(element: Elem, element2: Elem) {
+  const [base, saturation, lightness] = randomOf([element, element2]).display.color.split('_');
+          
+  setSuggestResult({
+    color: {
+      base: base as any,
+      lightness: parseFloat(lightness),
+      saturation: parseFloat(saturation),
+    },
+    text:'New Element'
+  }, element, element2)
+
+  suggestLeftElem.innerHTML = escapeHTML(element.display.text);
+  suggestLeftElem.className = `elem ${getClassFromDisplay(element.display)}`;
+  suggestRightElem.innerHTML = escapeHTML(element2.display.text);
+  suggestRightElem.className = `elem ${getClassFromDisplay(element2.display)}`;
+
+  document.querySelector('[data-suggest-prompt="left"]').innerHTML = escapeHTML(element.display.text);
+  document.querySelector('[data-suggest-prompt="right"]').innerHTML = escapeHTML(element2.display.text);
+
+  suggestResultElem.style.display = '';
+
+  updateSuggestion();
+
+  suggestContainer.classList.add('animate-prompt');
+  suggestContainer.style.width = '';
+  suggestContainer.style.width = (suggestContainer.offsetWidth+5) + 'px'
+
+  suggestOtherHeader.classList.add('no');
+  suggestOther1Elem.classList.add('no');
+  suggestOther1Downvote.classList.add('no');
+  suggestOther2Elem.classList.add('no');
+  suggestOther2Downvote.classList.add('no');
+  suggestOther3Elem.classList.add('no');
+  suggestOther3Downvote.classList.add('no');
+
+  suggestHint.classList.add('animate-in');
+  if (!getConfigBoolean('tutorial2', false)) {
+    setTutorial2Visible(true);
+    document.querySelector('#tutorial2').classList.add('tutorial-visible');
+    (document.querySelector('#tutorial2') as HTMLElement).style.display = 'block';
+  }
+  if (getConfigBoolean('always-suggest', false)) {
+    suggestContainer.style.width = '486px'
+    document.querySelector('.suggest-label').dispatchEvent(new MouseEvent('click'));
   }
 }
