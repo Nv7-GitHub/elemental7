@@ -1,3 +1,6 @@
+## Elemental 7.1.2
+- Yeah, we're elemental 7 now!
+
 ## Elemental 6.1.2 (2021-03-26)
 
 ### Engine
