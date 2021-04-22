@@ -1,5 +1,5 @@
 {
-  "name": "elemental4",
+  "name": "elemental7",
   "version": "6.1.2",
   "description": "Modern reboot of the old item combination game.",
   "main": "dist_server/server/index.js",
