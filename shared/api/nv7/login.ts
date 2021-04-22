@@ -47,11 +47,14 @@ export async function login(api: NV7ElementalAPI, ui?: ElementalLoadingUi): Prom
 
       if (creds["button"] == 1) {
         ui.status("Authenticating", 0);
+        let url = api.prefix + "login_user/" + encodeURIComponent(creds["email"]);
         if (registering) {
-          resp = await fetch(api.prefix + "create_user/" + encodeURIComponent(creds["email"]) + "/" + encodeURIComponent(creds["password"]))
-        } else {
-          resp = await fetch(api.prefix + "login_user/" + encodeURIComponent(creds["email"]) + "/" + encodeURIComponent(creds["password"]))
+          url = api.prefix + "create_user/" + encodeURIComponent(creds["email"]);
         }
+        resp = await fetch(url, {
+          method: "POST",
+          body: creds["password"],
+        });
 
         ui.status("Authenticating", 0.5);
         var data = await resp.json();
@@ -116,7 +119,10 @@ export async function login(api: NV7ElementalAPI, ui?: ElementalLoadingUi): Prom
     }
   } else {
     ui.status("Authenticating", 0);
-    resp = await fetch(api.prefix + "login_user/" + encodeURIComponent(email) + "/" + encodeURIComponent(password))
+    resp = await fetch(api.prefix + "login_user/" + encodeURIComponent(email), {
+      method: "POST",
+      body: password,
+    });
     ui.status("Authenticating", 0.5);
     data = await resp.json();
     ui.status("Authenticating", 1);
