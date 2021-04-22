@@ -1,3 +1,8 @@
+## Elemental 7.1.3
+
+### Nv7's Elemental
+- Increased security in login
+
 ## Elemental 7.1.2
 - Yeah, we're elemental 7 now!
 

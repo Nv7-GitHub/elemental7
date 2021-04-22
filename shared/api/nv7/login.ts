@@ -119,7 +119,10 @@ export async function login(api: NV7ElementalAPI, ui?: ElementalLoadingUi): Prom
     }
   } else {
     ui.status("Authenticating", 0);
-    resp = await fetch(api.prefix + "login_user/" + encodeURIComponent(email) + "/" + encodeURIComponent(password))
+    resp = await fetch(api.prefix + "login_user/" + encodeURIComponent(email), {
+      method: "POST",
+      body: password,
+    });
     ui.status("Authenticating", 0.5);
     data = await resp.json();
     ui.status("Authenticating", 1);
