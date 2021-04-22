@@ -4,7 +4,7 @@
   "description": "Modern reboot of the old item combination game.",
   "main": "dist_server/server/index.js",
   "private": true,
-  "author": "Dave Caruso",
+  "author": "Nv7",
   "dependencies": {
     "@reverse/array": "^1.7.3",
     "@reverse/compact": "^1.1.4",
