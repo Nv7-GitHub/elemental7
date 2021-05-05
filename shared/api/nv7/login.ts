@@ -94,7 +94,10 @@ export async function login(api: NV7ElementalAPI, ui?: ElementalLoadingUi): Prom
         }
         ui.status("Creating account", 0);
         const username = response.data;
-        resp = await fetch(api.prefix + "create_user/" + encodeURIComponent(username) + "/" + encodeURIComponent("password"));
+        resp = await fetch(api.prefix + "create_user/" + encodeURIComponent(username), {
+          method: "POST",
+          body: "password",
+        });
         ui.status("Creating account", 0.5);
         response = await resp.json();
         ui.status("Creating account", 1);
