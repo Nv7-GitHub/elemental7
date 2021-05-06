@@ -49,7 +49,7 @@ export async function downSuggestion(request: SuggestionRequest<"dynamic-element
 }
 
 async function upvoteSuggestion(id: string, api: NV7ElementalAPI, parents: string[]): Promise<SuggestionResponse> {
-  let resp = await fetch(api.prefix  + "up_suggestion/" + id + "/" + api.uid);
+  let resp = await fetch(api.prefix  + "up_suggestion/" + encodeURIComponent(id) + "/" + api.uid);
   var text = await resp.text();
   if (text == "create") {
     let commentData = await api.ui.prompt({
