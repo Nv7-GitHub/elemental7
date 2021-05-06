@@ -33,7 +33,7 @@
     "jszip": "^3.5.0",
     "juration": "^0.1.1",
     "markdown-escape": "^1.1.0",
-    "marked": "^1.2.3",
+    "marked": "^2.0.0",
     "moment": "^2.29.0",
     "monaco-editor": "^0.21.2",
     "node-fetch": "^2.3.0",
