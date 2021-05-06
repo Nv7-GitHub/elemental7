@@ -127,37 +127,30 @@ export async function submitSuggestion() {
 
 export async function shareSuggestion(ev) {
   const btn = ev.currentTarget as HTMLButtonElement;
-      const root = suggestContainer.querySelector('.suggest-content') as HTMLElement;
-      root.classList.add('screenshot')
-      btn.setAttribute('disabled', 'true');
-      btn.removeAttribute('disabled');
-      btn.blur();
-      await delayFrame();
-      await delayFrame();
-      await delayFrame();
-      await delayFrame();
-      const dataUrl = await DomToImage.toSvg(
-        suggestContainer.querySelector('.suggest-content'), {
-          style: { top: '0', position: 'relative', border: '1px solid black' },
-        } as any
-      );
-      await delayFrame();
-      root.classList.remove('screenshot')
-  
-      const svgImage = document.createElement('img');
-      document.body.appendChild(svgImage);
-      svgImage.onload = function () {
-        const canvas = document.createElement('canvas');
-        canvas.width = svgImage.clientWidth;
-        canvas.height = svgImage.clientHeight;
-        const canvasCtx = canvas.getContext('2d');
-        canvasCtx.drawImage(svgImage, 0, 0);
-        svgImage.remove();
-        canvas.toBlob((blob) => {
-          // fuck typescript
-          (navigator.clipboard as any).write([new (window as any).ClipboardItem({ [blob.type]: blob })]);
-        }, 'image/png');
-      };
-      svgImage.src = dataUrl;
-    
+  const root = suggestContainer.querySelector('.suggest-content');
+  root.classList.add('screenshot');
+  btn.setAttribute('disabled', 'true');
+  btn.removeAttribute('disabled');
+  btn.blur();
+  await delayFrame();
+  await delayFrame();
+  await delayFrame();
+  await delayFrame();
+  const node = suggestContainer.querySelector('.suggest-content')
+  const scale = 7;
+  DomToImage.toBlob(
+    node,
+    {
+      width: node.clientWidth * scale,
+      height: node.clientHeight * scale,
+      style: {
+        transform: 'scale('+scale+')',
+        transformOrigin: 'top left'
+      }
+    }
+  ).then((blob) => {
+    (navigator.clipboard as any).write([new (window as any).ClipboardItem({ [blob.type]: blob })]);
+  });
+  await delayFrame();
+  root.classList.remove('screenshot')
 }

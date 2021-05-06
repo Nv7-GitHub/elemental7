@@ -103,7 +103,7 @@ export interface Elem {
      * Color must be either a HEX String starting with #, or a color name from the palette.
      */
     color?: string;
-    /** Elemental 4 sorts elements into categories, if this isn't specified it goes off the color's name. */
+    /** Elemental 7 sorts elements into categories, if this isn't specified it goes off the color's name. */
     categoryName?: string;
   };
   /** Timestamp of when the element was created. */

@@ -5,7 +5,7 @@ import { ENABLE_HTTP, ENABLE_HTTPS } from './constants';
 import { storageClose, storageLoad, storageSave } from './storage';
 import { logOpenSheet } from './data-logging';
 
-log.info("Starting Elemental 4");
+log.info("Starting Elemental 7");
 
 (async() => {
   // Warn if anything is disabled
