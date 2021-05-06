@@ -1,3 +1,8 @@
+## Elemental 7.1.4
+
+### Engine
+- You can't get multiple of the same element anymore.
+
 ## Elemental 7.1.3
 
 ### Nv7's Elemental
