@@ -68,7 +68,7 @@
   ],
   "properties": {
     "type": {
-      "description": "Type of Elemental Data. For Elemental 4 themes it must be 'elemental4:theme'",
+      "description": "Type of Elemental Data. For Elemental 7 themes it must be 'elemental4:theme'",
       "const": "elemental4:theme"
     },
     "format_version": {

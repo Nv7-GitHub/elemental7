@@ -1,3 +1,10 @@
+## Elemental 7.1.5
+- Renamed some stuff from Elemental 4 to Elemental 7
+
+### Engine
+- Random lonely and up and coming actually work!
+- Question marks in suggestions also work!
+
 ## Elemental 7.1.4
 
 ### Engine
