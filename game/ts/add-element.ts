@@ -17,7 +17,7 @@ import { tutorial1visible, holdingElement, elementContainer, setTutorial1Visible
 // Adds an element and has most element logic
 export function createElement(element: Elem, sourceLocation?: HTMLElement, duringLoad?: boolean): any[] {
   if(!element) return;
-  let escapedId = element.id.replaceAll("\n", "n");
+  let escapedId = String(element.id).replaceAll("\n", "n");
   escapedId = escapedId.replaceAll('"', "'");
   const alreadyExistingDom = document.querySelector(`[data-element="${escapedId}"]`) as HTMLElement;
   
