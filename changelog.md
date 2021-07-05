@@ -1,3 +1,7 @@
+## Elemental 7.1.7
+### Engine
+- Bugfixes in element IDs
+
 ## Elemental 7.1.6
 ### Engine
 - Remember that share button? Well it actually works now!
