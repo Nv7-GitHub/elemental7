@@ -23,7 +23,8 @@ export const builtInDevInternalServers = [
   'internal:stress-test-10k',
 ];
 export const builtInThirdPartyServers = [
-  'https://elemental-reborn.tk',      // cannot suggest, need google auth
+  //'https://elemental-reborn.tk',      // cannot suggest, need google auth
+  // elemental reborn commented because it is down and request requires timeout, causing slow load times
 ];
 export const allBuiltInServers = [
   ...builtInOfficialServers,
