@@ -1,10 +1,25 @@
 import {Suggestion, SuggestionRequest, SuggestionResponse} from "../../elem";
 import {SuggestionData} from "./types";
 import { NV7ElementalAPI } from "./nv7";
+import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
+import { E4ColorPalette } from "../../elemental4-types";
+import { Color, Combination, CreateRequest, NewSuggestionRequest, Suggestion as Sugg, SuggestionRequest as SuggestionReq } from "./pb/elemental_pb";
+import { ServiceError } from "./pb/elemental_pb_service";
 
 async function getSuggestionCombo(api: NV7ElementalAPI, elem1: string, elem2: string): Promise<string[]> {
-  let resp = await fetch(api.prefix + "suggestion_combos/" + encodeURIComponent(elem1) + "/" + encodeURIComponent(elem2))
-  let suggestions = await resp.json() as string[];
+  let suggestions = await new Promise<string[]>((res, rej) => {
+    let combo = new Combination();
+    combo.setElem1(elem1);
+    combo.setElem2(elem2);
+    api.client.getSuggestionCombos(combo, (err, resp) => {
+      if (err) {
+        console.error(err.message);
+        rej(err);
+      }
+
+      res(resp.getSuggestionsList());
+    });
+  })
   if (suggestions == null) {
     suggestions = [];
   }
@@ -27,8 +42,31 @@ export async function getSuggests(api: NV7ElementalAPI, elem1: string, elem2: st
 }
 
 async function getSuggestion(api: NV7ElementalAPI, id: string): Promise<SuggestionData> {
-  let resp = await fetch(api.prefix + "get_suggestion/" + encodeURIComponent(id));
-  let data = await resp.json() as SuggestionData;
+  let data = await new Promise<SuggestionData>((res, rej) => {
+    let inp = new StringValue();
+    inp.setValue(id);
+    api.client.getSuggestion(inp, (err, resp) => {
+      if (err) {
+        if (err.message == "null") {
+          return res(null);
+        }
+        api.handleError(err);
+        return rej(err);
+      }
+
+      res({
+        name: resp.getName(),
+        creator: resp.getCreator(),
+        color: {
+          base: resp.getColor().getBase() as E4ColorPalette,
+          saturation: resp.getColor().getSaturation(),
+          lightness: resp.getColor().getLightness(),
+        },
+        votes: resp.getVotes(),
+        voted: resp.getVotedList(),
+      });
+    })
+  })
   if (data == null) {
     return null;
   }
@@ -37,21 +75,41 @@ async function getSuggestion(api: NV7ElementalAPI, id: string): Promise<Suggesti
 
 export async function downSuggestion(request: SuggestionRequest<"dynamic-elemental4">, api: NV7ElementalAPI): Promise<void> {
   var id = request.text;
-  let resp = await fetch(api.prefix  + "down_suggestion/" + id + "/" + api.uid);
-  var text = await resp.text();
-  if (text != "") {
-    await api.ui.alert({
-      "text": text,
-      "title": "Error",
-      "button": "Ok",
+  return new Promise<void>((res, rej) => {
+    let req = new SuggestionReq();
+    req.setElement(id);
+    req.setUid(api.uid);
+    api.client.upSuggestion(req, async (err, resp) => {
+      if (err) {
+        await api.ui.alert({
+          "text": err.message,
+          "title": "Error",
+          "button": "Ok",
+        });
+        return rej(err);
+      }
+
+      res();
     });
-  }
+  });
 }
 
-async function upvoteSuggestion(id: string, api: NV7ElementalAPI, parents: string[]): Promise<SuggestionResponse> {
-  let resp = await fetch(api.prefix  + "up_suggestion/" + encodeURIComponent(id) + "/" + api.uid);
-  var text = await resp.text();
-  if (text == "create") {
+async function handleCreate(api: NV7ElementalAPI, createProm: Promise<boolean>, parents: string[], id: string): Promise<SuggestionResponse> {
+  let create = false;
+  try {
+    create = await createProm;
+  } catch (err) {
+    await api.ui.alert({
+      "text": text,
+      "title": err.message,
+      "button": "Ok",
+    });
+    return {
+      suggestType: "failed"
+    }
+  }
+
+  if (create) {
     let commentData = await api.ui.prompt({
       title: "Confirm Creator Mark",
       text: "Enter below what you want to use for your creator mark. You are responsible for the creation of this element!"
@@ -60,11 +118,21 @@ async function upvoteSuggestion(id: string, api: NV7ElementalAPI, parents: strin
     if (commentData) {
       comment = commentData;
     }
-    resp = await fetch(api.prefix + "create_suggestion/" + encodeURIComponent(parents[0]) + "/" + encodeURIComponent(parents[1]) + "/" + encodeURIComponent(id) + "/" + encodeURIComponent(comment) + "/" + encodeURIComponent(api.saveFile.get("email", "anonymous")));
-    text = await resp.text();
-    if (text != "") {
+    let err = await new Promise<ServiceError>((res, _) => {
+      let req = new CreateRequest();
+      req.setPioneer(api.saveFile.get("email", "anonymous"));
+      req.setElem1(parents[0]);
+      req.setElem2(parents[1]);
+      req.setId(id);
+      req.setMark(comment);
+      api.client.createSugg(req, (err, _) => {
+        res(err);
+      })
+    });
+
+    if (err) {
       await api.ui.alert({
-        "text": text,
+        "text": err.message,
         "title": "Error",
         "button": "Ok",
       });
@@ -78,75 +146,59 @@ async function upvoteSuggestion(id: string, api: NV7ElementalAPI, parents: strin
       newElements: [id]
     }
   }
-  if (text != "") {
-    await api.ui.alert({
-      "text": text,
-      "title": "Error",
-      "button": "Ok",
-    });
-    return {
-      suggestType: "failed"
-    }
-  }
   return {
     suggestType: "vote"
   }
 }
 
+async function upvoteSuggestion(id: string, api: NV7ElementalAPI, parents: string[]): Promise<SuggestionResponse> {
+  return handleCreate(api, new Promise<boolean>((res, rej) => {
+    let req = new SuggestionReq();
+    req.setElement(id);
+    req.setUid(api.uid);
+    api.client.upSuggestion(req, (err, resp) => {
+      if (err) {
+        return rej(err);
+      }
+
+      res(resp.getCreate());
+    });
+  }), parents, id);
+}
+
 export async function newSuggestion(elem1: string, elem2: string, request: SuggestionRequest<"dynamic-elemental4">, api: NV7ElementalAPI): Promise<SuggestionResponse> {
   var existing = await getSuggestionCombo(api, elem1, elem2);
   
-  for (var i = 0; i < existing.length; i++) {
-    if (existing[i] == request.text) {
-      return upvoteSuggestion(existing[i], api, [elem1, elem2]);
+  for (let exists of existing) {
+    if (exists == request.text) {
+      return upvoteSuggestion(exists, api, [elem1, elem2]);
     }
   }
 
-  var newSuggest: SuggestionData = {
-    name: request.text,
-    creator: api.saveFile.get("email", "anonymous"),
-    color: request.color,
-    votes: 0,
-    voted: [api.uid]
-  }
+  return handleCreate(api, new Promise<boolean>((res, rej) => {
+    let col = new Color();
+    col.setBase(request.color.base);
+    col.setSaturation(request.color.saturation);
+    col.setLightness(request.color.lightness);
 
-  let resp = await fetch(api.prefix + "new_suggestion/" + encodeURIComponent(elem1) + "/" + encodeURIComponent(elem2) + "/" + encodeURIComponent(JSON.stringify(newSuggest)))
-  let text = await resp.text();
-  if (text != "") {
-    if (text == "create") {
-      let commentData = await api.ui.prompt({
-        title: "Confirm Creator Mark",
-        text: "Enter below what you want to use for your creator mark. You are responsible for the creation of this element!"
-      });
-      var comment = "No comment."
-      if (commentData) {
-        comment = commentData;
+    let newSuggest = new Sugg();
+    newSuggest.setName(request.text);
+    newSuggest.setCreator(api.saveFile.get("email", "anonymous"));
+    newSuggest.setColor(col);
+    newSuggest.setVotes(0);
+    newSuggest.setVotedList([api.uid]);
+
+    let req = new NewSuggestionRequest();
+    req.setElem1(elem1);
+    req.setElem2(elem2);
+    req.setSuggestion(newSuggest);
+    
+    api.client.newSugg(req, (err, resp) => {
+      if (err) {
+        return rej(err);
       }
-      resp = await fetch(api.prefix + "create_suggestion/" + encodeURIComponent(elem1) + "/" + encodeURIComponent(elem2) + "/" + encodeURIComponent(request.text) + "/" + encodeURIComponent(comment) + "/" + encodeURIComponent(api.saveFile.get("email", "anonymous")));
-      text = await resp.text();
-      if (text != "") {
-        await api.ui.alert({
-          "text": text,
-          "title": "Error",
-          "button": "Ok",
-        });
-        return {
-          suggestType: "failed"
-        }
-      }
-  
-      return {
-        suggestType: "vote",
-        newElements: [request.text]
-      }
-    }
-    await api.ui.alert({
-      "text": text,
-      "title": "Error",
-      "button": "Ok",
+
+      res(resp.getCreate());
     });
-  }
-  return {
-    suggestType: "suggest"
-  }
+  }), [elem1, elem2], request.text);
 }

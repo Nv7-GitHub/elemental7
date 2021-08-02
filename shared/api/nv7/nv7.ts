@@ -9,21 +9,33 @@ import { IStore } from "../../store";
 import { Cache } from "./cache";
 import {Element} from "./types";
 import { randomLonelySugg, upAndComingSugg } from "./randomSuggestions";
-import apiV1 from "../../../server/api/api-v1";
+import { ElementalClient, ServiceError } from "./pb/elemental_pb_service";
+import { ResponseStream } from "./pb/elemental_pb_service";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 
 export class NV7ElementalAPI extends ElementalBaseAPI implements SuggestionAPI<'dynamic-elemental4'>, RecentCombinationsAPI,  ServerSavefileAPI, OptionsMenuAPI, RandomSuggestionsAPI {
 	public uid: string
 	public saveFile;
 	public ui;
 	public votesRequired: number = 3;
-	public ref;
+	public ref: ResponseStream<Empty>;
 	public store: IStore;
 	public prefix: string;
 	public cache: Cache;
 	public elemCache: Record<string, Element> = {};
+	public client: ElementalClient;
+
+	public handleError(err: ServiceError) {
+		this.ui.alert({
+			title: "Error",
+			message: err.message,
+			button: "Ok",
+		});
+	}
 
   async open(ui?: ElementalLoadingUi): Promise<boolean> {
 		this.prefix = this.config.prefix;
+		this.client = new ElementalClient(this.config.grpc); // Don't hardcode, get from config
 		this.cache = new Cache();
 		await this.cache.init();
 		await login(this, ui);
@@ -31,8 +43,7 @@ export class NV7ElementalAPI extends ElementalBaseAPI implements SuggestionAPI<'
 		return true;
   }
   async close(): Promise<void> {
-		this.ref.close();
-		return;
+		this.ref.cancel();
 	}
   async getStats(): Promise<ServerStats> {
     return {
