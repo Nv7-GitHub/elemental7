@@ -1,29 +1,32 @@
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import {RecentCombination} from "../../elem";
 import { NV7ElementalAPI } from "./nv7";
+import { Recents } from "./pb/elemental_pb";
 
 export async function getRecents(api: NV7ElementalAPI): Promise<RecentCombination[]> {
-  let resp = await fetch(api.prefix + "recents")
-  let data = await resp.json();
-  if (!data) {
-    data = [];
-  }
-  for (var i = 0; i < data.length; i++) {
-    data[i].recipe = data[i].Recipe;
-    data[i].result = data[i].Result;
-  }
-  return data as RecentCombination[];
+  let data = await new Promise<Recents>((res, rej) => {
+    api.client.getRec(new Empty(), (err, resp) => {
+      if (err) {
+        api.handleError(err);
+        return rej(err);
+      }
+      res(resp);
+    })
+  });
+  
+  return data.getRecentsList().map((val) => {
+    return {
+      recipe: [val.getElem1(), val.getElem2()],
+      result: val.getElem3(),
+    }
+  });
 }
 
 export async function waitForNew(api: NV7ElementalAPI): Promise<void> {
-  api.ref = new EventSource(api.config.databaseURL + "/recent.json");
-  return new Promise<void>((resolve, _) => {
-    var count = 0;
-    api.ref.addEventListener("put", function() {
-      count++;
-      if (count > 1) {
-        api.ref.close();
-        resolve();
-      }
+  api.ref = api.client.waitForNextRecent(new Empty());
+  return new Promise<void>((res, _) => {
+    api.ref.on("data", (_) => {
+      res();
     });
-  })
+  });
 }

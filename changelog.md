@@ -1,3 +1,7 @@
+## Elemental 7.2.0
+### Elemental 7
+- Rewrote the entire backend to use gRPC instead of REST
+
 ## Elemental 7.1.7
 ### Engine
 - Bugfixes in element IDs
