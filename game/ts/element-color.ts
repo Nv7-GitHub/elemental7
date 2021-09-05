@@ -3,17 +3,17 @@ import Color from 'color';
 import { Elem } from '../../shared/elem';
 import { getAPI } from './api';
 
-const cache = {}; 
+const cache = new Map(); 
 
 const colorStyleTag = document.createElement('style');
 document.head.appendChild(colorStyleTag);
 
 export function getClassFromDisplay(display: Elem['display'], forceRecalculate?: boolean): string {
   const key = `${display.color}:::${display.image}`;
-  if (!forceRecalculate && key in cache) return cache[key];
+  if (!forceRecalculate && cache.has(key)) return cache.get(key);
 
-  const c = cache[key] || 'p' + Object.keys(cache).length;
-  cache[key] = c;
+  const c = cache.get(key) || 'p' + cache.size;
+  cache.set(key, c);
 
   const rule = `.${c}{${getCSSFromDisplay(display)};}`;
   colorStyleTag.sheet.insertRule(rule, colorStyleTag.sheet.cssRules.length);
@@ -26,7 +26,7 @@ export function reloadElementCssColors() {
   for (let i = 0; i < rules; i++) {
     colorStyleTag.sheet.deleteRule(0);
   }
-  Object.keys(cache).forEach((key) => {
+  cache.forEach((val, key) => {
     const [color, image] = key.split(':::')
     getClassFromDisplay({
       text: 'Element',

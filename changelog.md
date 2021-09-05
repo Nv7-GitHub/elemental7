@@ -1,3 +1,7 @@
+## Elemental 7.2.1 (2021-08-09)
+### Engine
+- Heavily optimize element creation
+
 ## Elemental 7.2.0
 ### Elemental 7
 - Rewrote the entire backend to use gRPC instead of REST

@@ -246,8 +246,13 @@ async function onSaveFileLoad(ui: ElementalLoadingUi) {
   let elementData: Record<string, HTMLElement[]> = {};
   let elementCategories: Record<string, HTMLElement> = {};
 
-  for (let elementToAdd of elementsToAdd) {
-    let doms = createElement(elementToAdd, null, true);
+  for (let i = 0; i < elementsToAdd.length; i++) {
+    // Creating elements progress bar, don't need it because its already fast
+    /*if (i % 500 === 0) {
+      ui.status('Creating Elements', i / elementsToAdd.length)
+      await delay(1);
+    }*/
+    let doms = createElement(elementsToAdd[i], null, true);
     let ky = doms[0].getAttribute("data-category")
     elementCategories[ky] = doms[0];
     if (ky in elementData) {
