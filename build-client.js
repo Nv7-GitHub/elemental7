@@ -17,6 +17,36 @@ process.chdir(__dirname);
 (async() => {
     fs.pathExistsSync('./dist_client') && fs.removeSync("./dist_client");
 
+    if(!process.argv.includes('-s')) {
+        // Webpack build
+        await new Promise((next) => {
+            webpack(config, (err, stats) => {
+                // errors
+                if (err) {
+                    console.error(err.stack || err);
+                    if (err.details) {
+                        console.error(err.details);
+                    }
+                    process.exit(1);
+                }
+    
+                const info = stats.toJson();
+    
+                // errors
+                if (stats.hasErrors()) {
+                    console.error(info.errors.join("\n\n"));
+                }
+    
+                // warnings
+                if (stats.hasWarnings()) {
+                    console.warn(info.warnings.join("\n"));
+                }
+    
+                next();
+            });
+        });
+    }
+
     const workshopManifest = {
         themes: [],
         packs: [],
@@ -121,34 +151,4 @@ process.chdir(__dirname);
             .map(x => `${x.url} https://github.com/davecaruso/elemental4/tree/master/workshop${x.url}`)
             .join('\n')
     );
-
-    if(!process.argv.includes('-s')) {
-        // Webpack build
-        await new Promise((next) => {
-            webpack(config, (err, stats) => {
-                // errors
-                if (err) {
-                    console.error(err.stack || err);
-                    if (err.details) {
-                        console.error(err.details);
-                    }
-                    process.exit(1);
-                }
-    
-                const info = stats.toJson();
-    
-                // errors
-                if (stats.hasErrors()) {
-                    console.error(info.errors.join("\n\n"));
-                }
-    
-                // warnings
-                if (stats.hasWarnings()) {
-                    console.warn(info.warnings.join("\n"));
-                }
-    
-                next();
-            });
-        });
-    }
 })();
