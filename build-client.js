@@ -142,6 +142,7 @@ process.chdir(__dirname);
     monacoEditor.files.forEach((f) => {
         fs.copySync(path.join(__dirname, monacoEditor.base, f), path.join('dist_client/vs/', f));
     })
+    console.log(version);
     fs.writeFileSync('dist_client/version', version);
     fs.copyFileSync('changelog.md', 'dist_client/changelog.md');
     fs.appendFileSync('dist_client/_redirects',
