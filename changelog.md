@@ -1,3 +1,7 @@
+## Elemental 7.3.0 (2021-09-06)
+### Nv7's Anarchy
+- There is now Nv7's Anarchy!
+
 ## Elemental 7.2.1 (2021-08-09)
 ### Engine
 - Heavily optimize element creation
