@@ -10,7 +10,7 @@ export async function foundElement(api: NV7ElementalAPI, newElement: string): Pr
       req.setElement(newElement);
       api.client.addFound(req, (err, _) => {
         if (err) {
-          console.error(err.message);
+          api.handleError(err);
           rej(err);
         }
         res();

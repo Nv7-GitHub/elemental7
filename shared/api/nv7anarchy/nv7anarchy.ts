@@ -27,13 +27,13 @@ export class Nv7AnarchyAPI extends ElementalBaseAPI implements SuggestionAPI<'dy
 		}
 		this.ui.alert({
 			title: "Error",
-			message: err.message,
-			button: "Ok",
+			text: err.message,
 		});
 	}
 
     async open(ui?: ElementalLoadingUi): Promise<boolean> {
-		this.client = new AnarchyClient(this.config.grpc);
+		//this.client = new AnarchyClient(this.config.grpc);
+		this.client = new AnarchyClient("http://localhost:3000");
 		this.cache = new Cache();
 		this.prefix = this.config.prefix;
 		await this.cache.init();

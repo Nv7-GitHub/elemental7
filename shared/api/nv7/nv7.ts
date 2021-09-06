@@ -31,8 +31,7 @@ export class NV7ElementalAPI extends ElementalBaseAPI implements SuggestionAPI<'
 		}
 		this.ui.alert({
 			title: "Error",
-			message: err.message,
-			button: "Ok",
+			text: err.message,
 		});
 	}
 

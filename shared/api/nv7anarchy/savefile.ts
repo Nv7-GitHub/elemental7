@@ -29,7 +29,7 @@ export async function getFound(api: Nv7AnarchyAPI): Promise<string[]> {
       inp.setValue(api.uid);
       api.client.getInv(inp, (err, resp) => {
         if (err) {
-          console.error(err.message);
+          api.handleError(err);
           rej(err);
         };
   
