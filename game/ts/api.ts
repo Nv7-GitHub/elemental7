@@ -23,6 +23,7 @@ import { BlankExampleAPI } from "../../shared/api/blank";
 import { disposeServerConfigGui, reRenderServerConfigGui } from "./settings-server-config";
 import { ChunkedStore } from "../../shared/store-chunk";
 import { startRandomSuggestions } from "./element-game/randomSuggestions";
+import { Nv7AnarchyAPI } from "../../shared/api/nv7anarchy/nv7anarchy";
 
 // @ts-ignore
 class IHateTypescript extends ElementalBaseAPI {
@@ -42,6 +43,7 @@ const apiTypeMap: Record<string, typeof IHateTypescript> = {
   'le4': LedomElementalAPI,
   'nv7': NV7ElementalAPI,
   'nv7single': Nv7SingleAPI,
+  'nv7anarchy': Nv7AnarchyAPI,
 };
 
 let currentAPI: ElementalBaseAPI;
