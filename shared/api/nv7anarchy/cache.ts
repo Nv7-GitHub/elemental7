@@ -4,7 +4,7 @@ export class Cache  {
   private db: IDBDatabase;
 
   async init(): Promise<void> {
-    var request: IDBOpenDBRequest = window.indexedDB.open("Nv7Elemental", 3);
+    var request: IDBOpenDBRequest = window.indexedDB.open("Nv7Anarchy", 3);
 
     return new Promise<void>((resolve, reject) => {
       request.onsuccess = (event: any) => {

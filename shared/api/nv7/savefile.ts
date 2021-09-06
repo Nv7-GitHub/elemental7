@@ -10,7 +10,7 @@ export async function foundElement(api: NV7ElementalAPI, newElement: string): Pr
       req.setElement(newElement);
       api.client.addFound(req, (err, _) => {
         if (err) {
-          console.error(err.message);
+          api.handleError(err);
           rej(err);
         }
         res();
@@ -22,6 +22,7 @@ export async function foundElement(api: NV7ElementalAPI, newElement: string): Pr
     await api.saveFile.set("found", existing);
   }
 }
+
 export async function getFound(api: NV7ElementalAPI): Promise<string[]> {
   let found = await new Promise<string[]>((res, rej) => {
     let inp = new StringValue();
