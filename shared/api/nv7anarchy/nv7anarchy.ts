@@ -1,6 +1,6 @@
 import Color from "color";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { applyColorTransform, Elem, ElementalBaseAPI, ElementalColorPalette, ElementalLoadingUi, RecentCombination, RecentCombinationsAPI, ServerSavefileAPI, ServerSavefileEntry, ServerStats, Suggestion, SuggestionAPI, SuggestionColorInformation, SuggestionRequest, SuggestionResponse, ThemedPaletteEntry } from "../../elem";
+import { applyColorTransform, Elem, ElementalBaseAPI, ElementalColorPalette, ElementalLoadingUi, OptionsMenuAPI, OptionsSection, RecentCombination, RecentCombinationsAPI, ServerSavefileAPI, ServerSavefileEntry, ServerStats, Suggestion, SuggestionAPI, SuggestionColorInformation, SuggestionRequest, SuggestionResponse, ThemedPaletteEntry } from "../../elem";
 import { Cache } from "./cache";
 import { downloadElems, getCombination, getElem } from "./elements";
 import { login } from "./login";
@@ -11,7 +11,7 @@ import { Element } from "./types";
 import { createElement } from "./create";
 
 
-export class Nv7AnarchyAPI extends ElementalBaseAPI implements SuggestionAPI<'dynamic-elemental4'>, RecentCombinationsAPI,  ServerSavefileAPI {
+export class Nv7AnarchyAPI extends ElementalBaseAPI implements SuggestionAPI<'dynamic-elemental4'>, RecentCombinationsAPI,  ServerSavefileAPI, OptionsMenuAPI {
     public uid: string
 	public saveFile;
 	public ui;
@@ -102,5 +102,47 @@ export class Nv7AnarchyAPI extends ElementalBaseAPI implements SuggestionAPI<'dy
     async createSuggestion(ids: string[], suggestion: SuggestionRequest<"dynamic-elemental4">): Promise<SuggestionResponse> {
 		ids.sort();
 		return createElement(this, ids[0], ids[1], suggestion);
+	}
+
+	getOptionsMenu(): OptionsSection[] {
+		return [
+			{
+				title: "Nv7's Elemental",
+				desc: this.config.description,
+				items: [
+					{
+						type: "button",
+						label: "Get Login Info",
+						onChange: async () => {
+							await this.ui.alert({
+								title: "Username",
+								text: await this.saveFile.get("email"),
+							});
+							await this.ui.alert({
+								title: "Password",
+								text: await this.saveFile.get("password"),
+							});
+						}
+					},
+					{
+						type: "button",
+						label: "Log Out",
+						onChange: async () => {
+							await this.saveFile.set("email", "default");
+							await this.saveFile.set("password", "default");
+							await this.ui.reloadSelf();
+						}
+					},
+					{
+						type: "button",
+						label: "Refresh Cache",
+						onChange: async () => {
+							await this.saveFile.set("downloadTime", 0)
+							await this.ui.reloadSelf();
+						}
+					},
+				]
+			},
+		];
 	}
 }
