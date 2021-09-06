@@ -22,6 +22,7 @@ export async function foundElement(api: NV7ElementalAPI, newElement: string): Pr
     await api.saveFile.set("found", existing);
   }
 }
+
 export async function getFound(api: NV7ElementalAPI): Promise<string[]> {
   let found = await new Promise<string[]>((res, rej) => {
     let inp = new StringValue();
