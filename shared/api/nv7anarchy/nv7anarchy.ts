@@ -32,8 +32,7 @@ export class Nv7AnarchyAPI extends ElementalBaseAPI implements SuggestionAPI<'dy
 	}
 
     async open(ui?: ElementalLoadingUi): Promise<boolean> {
-		//this.client = new AnarchyClient(this.config.grpc);
-		this.client = new AnarchyClient("http://localhost:3000");
+		this.client = new AnarchyClient(this.config.grpc);
 		this.cache = new Cache();
 		this.prefix = this.config.prefix;
 		await this.cache.init();
