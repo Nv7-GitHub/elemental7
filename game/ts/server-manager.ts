@@ -9,9 +9,9 @@ interface ServerEntry {
 }
 
 export const builtInOfficialServers = [
-  'https://nv7haven.tk',
-  'https://nv7haven.tk/anarchy',
-  'https://nv7haven.tk/single',
+  'https://nv7haven.com',
+  'https://nv7haven.com/anarchy',
+  'https://nv7haven.com/single',
 ];
 export const builtInInternalServers = [
   // 'internal:singleplayer',
