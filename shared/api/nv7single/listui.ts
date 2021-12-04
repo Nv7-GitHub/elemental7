@@ -4,8 +4,7 @@ import { PackInfo } from "./types";
 
 export function  listUI(api: Nv7SingleAPI): OptionsItem[] {
   let items: OptionsItem[] = [];
-  for (let i = 0; i < api.items.length; i++) {
-    let item = api.items[i];
+  for (let item of api.items) {
     items.push({
       type: "listItem",
       label: item.description,
