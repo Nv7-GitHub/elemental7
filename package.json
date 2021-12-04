@@ -1,6 +1,6 @@
 {
   "name": "elemental7",
-  "version": "7.3.0",
+  "version": "7.3.1",
   "description": "Modern reboot of the old item combination game.",
   "main": "dist_server/server/index.js",
   "private": true,
