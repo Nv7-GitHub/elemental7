@@ -9,12 +9,12 @@ export async function login(api: Nv7SingleAPI, ui?: ElementalLoadingUi): Promise
     while (true) {
       ui.status("Requesting Login Info", 0);
       let creds = await api.ui.dialog({
-        title: 'Nv7 Elemental Login',
+        title: 'Nv7 Anarchy Login',
         parts: [
           {
             id: "email",
-            type: "email",
-            placeholder: "example@example.com",
+            type: "text",
+            placeholder: "MyEpicUsername",
           },
           {
             id: "password",
@@ -23,19 +23,19 @@ export async function login(api: Nv7SingleAPI, ui?: ElementalLoadingUi): Promise
         ],
         buttons: [
           {
-            id: "login",
+            id: "1",
             label: (!registering && "Log In") || (registering && "Register"),
           },
           {
-            id: "switch",
+            id: "0",
             label: (!registering && "Register") || (registering && "Log In"),
           },
           !registering && {
-            id: "anonymous",
+            id: "-2",
             label: "Anonymous"
           },
           {
-            id: "cancel",
+            id: "-1",
             label: "Cancel",
           }
         ].filter(Boolean)
@@ -43,13 +43,17 @@ export async function login(api: Nv7SingleAPI, ui?: ElementalLoadingUi): Promise
 
       ui.status("Processing Login Info", 0);
 
-      if (creds["button"] == "login") {
+      console.log(creds["button"])
+      if (creds["button"] == "1") {
         ui.status("Authenticating", 0);
+        let url = api.prefix + "login_user/" + encodeURIComponent(creds["email"]);
         if (registering) {
-          resp = await fetch(api.prefix + "create_user/" + encodeURIComponent(creds["email"]) + "/" + encodeURIComponent(creds["password"]))
-        } else {
-          resp = await fetch(api.prefix + "login_user/" + encodeURIComponent(creds["email"]) + "/" + encodeURIComponent(creds["password"]))
+          url = api.prefix + "create_user/" + encodeURIComponent(creds["email"]);
         }
+        resp = await fetch(url, {
+          method: "POST",
+          body: creds["password"],
+        });
 
         ui.status("Authenticating", 0.5);
         var data = await resp.json();
@@ -69,9 +73,9 @@ export async function login(api: Nv7SingleAPI, ui?: ElementalLoadingUi): Promise
           });
           return false;
         }
-      } else if (creds["button"] == "switch") {
+      } else if (creds["button"] == "0") {
         registering = !registering;
-      } else if (creds["button"] == "anonymous") {
+      } else if (creds["button"] == "-2") {
         ui.status("Generating username", 0)
         var resp = await fetch(api.prefix + "new_anonymous_user")
         ui.status("Generating username", 0.5)
@@ -87,7 +91,10 @@ export async function login(api: Nv7SingleAPI, ui?: ElementalLoadingUi): Promise
         }
         ui.status("Creating account", 0);
         const username = response.data;
-        resp = await fetch(api.prefix + "create_user/" + encodeURIComponent(username) + "/" + encodeURIComponent("password"));
+        resp = await fetch(api.prefix + "create_user/" + encodeURIComponent(username), {
+          method: "POST",
+          body: "password",
+        });
         ui.status("Creating account", 0.5);
         response = await resp.json();
         ui.status("Creating account", 1);
@@ -105,13 +112,16 @@ export async function login(api: Nv7SingleAPI, ui?: ElementalLoadingUi): Promise
           });
           return false;
         }
-      } else if (creds["button"] == "cancel") {
+      } else if (creds["button"] == "-1") {
         return false;
       }
     }
   } else {
-    ui.status("Authenticated", 0);
-    resp = await fetch(api.prefix + "login_user/" + encodeURIComponent(email) + "/" + encodeURIComponent(password))
+    ui.status("Authenticating", 0);
+    resp = await fetch(api.prefix + "login_user/" + encodeURIComponent(email), {
+      method: "POST",
+      body: password,
+    });
     ui.status("Authenticating", 0.5);
     data = await resp.json();
     ui.status("Authenticating", 1);

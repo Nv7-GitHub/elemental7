@@ -151,26 +151,26 @@ export function  packUI(api: Nv7SingleAPI): OptionsItem[] {
       id: "upload",
     })
   }
-  for (let i = 0; i < packs.length; i++) {
+  for (let pack of packs) {
     items.push({
       type: "listItem",
-      label: packs[i].description,
-      title: packs[i].title,
+      label: pack.description,
+      title: pack.title,
       choices: choices,
       onChange: async (id: string) => {
         if (id == "select") {
-          api.saveFile.set("pack", packs[i].id);
-          api.pack = packs[i].id;
+          api.saveFile.set("pack", pack.id);
+          api.pack = pack.id;
           await api.ui.reloadSelf();
         } else if (id == "upload") {
           api.ui.loading(async (ui: ElementalLoadingUi) => {
             ui.status("Converting Data", 0);
-            let output = JSON.stringify(await api.cache.getAll(packs[i].id));
+            let output = JSON.stringify(await api.cache.getAll(pack.id));
             ui.status("Converting Data", 0.5);
             let packdat: PackData = {
-              id: packs[i].id,
-              title: packs[i].title,
-              description: packs[i].description,
+              id: pack.id,
+              title: pack.title,
+              description: pack.description,
               data: output,
               uid: api.uid,
             }
@@ -201,12 +201,12 @@ export function  packUI(api: Nv7SingleAPI): OptionsItem[] {
         } else if (id == "export") {
           api.ui.loading(async (ui: ElementalLoadingUi) => {
             ui.status("Converting Data", 0);
-            let output = JSON.stringify(await api.cache.getAll(packs[i].id));
+            let output = JSON.stringify(await api.cache.getAll(pack.id));
             ui.status("Converting Data", 0.5);
             let packdat: PackData = {
-              id: packs[i].id,
-              title: packs[i].title,
-              description: packs[i].description,
+              id: pack.id,
+              title: pack.title,
+              description: pack.description,
               data: output,
               uid: api.uid,
             }
@@ -251,8 +251,8 @@ export function  packUI(api: Nv7SingleAPI): OptionsItem[] {
             })
             return;
           }
-          packs[i].title = info.title;
-          packs[i].description = info.description;
+          pack.title = info.title;
+          pack.description = info.description;
           api.saveFile.set("packs", packs);
           await api.ui.reloadSelf();
         }
