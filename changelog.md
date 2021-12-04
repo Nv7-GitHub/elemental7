@@ -1,3 +1,11 @@
+## Elemental 7.3.2 (2021-12-03)
+## Nv7's Singleplayer
+- Login system updated
+- Pack downloading fixed
+
+## Elemental 7.3.1 (2021-12-03)
+- Nv7haven is back!
+
 ## Elemental 7.3.0 (2021-09-06)
 ### Nv7's Anarchy
 - There is now Nv7's Anarchy!
