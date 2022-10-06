@@ -46,9 +46,9 @@ export async function login(api: Nv7SingleAPI, ui?: ElementalLoadingUi): Promise
       console.log(creds["button"])
       if (creds["button"] == "1") {
         ui.status("Authenticating", 0);
-        let url = api.prefix + "login_user/" + encodeURIComponent(creds["email"]);
+        let url = api.loginprefix + "login_user/" + encodeURIComponent(creds["email"]);
         if (registering) {
-          url = api.prefix + "create_user/" + encodeURIComponent(creds["email"]);
+          url = api.loginprefix + "create_user/" + encodeURIComponent(creds["email"]);
         }
         resp = await fetch(url, {
           method: "POST",
@@ -77,7 +77,7 @@ export async function login(api: Nv7SingleAPI, ui?: ElementalLoadingUi): Promise
         registering = !registering;
       } else if (creds["button"] == "-2") {
         ui.status("Generating username", 0)
-        var resp = await fetch(api.prefix + "new_anonymous_user")
+        var resp = await fetch(api.loginprefix + "new_anonymous_user")
         ui.status("Generating username", 0.5)
         var response = await resp.json();
         ui.status("Generating username", 1)
@@ -91,7 +91,7 @@ export async function login(api: Nv7SingleAPI, ui?: ElementalLoadingUi): Promise
         }
         ui.status("Creating account", 0);
         const username = response.data;
-        resp = await fetch(api.prefix + "create_user/" + encodeURIComponent(username), {
+        resp = await fetch(api.loginprefix + "create_user/" + encodeURIComponent(username), {
           method: "POST",
           body: "password",
         });
@@ -118,7 +118,7 @@ export async function login(api: Nv7SingleAPI, ui?: ElementalLoadingUi): Promise
     }
   } else {
     ui.status("Authenticating", 0);
-    resp = await fetch(api.prefix + "login_user/" + encodeURIComponent(email), {
+    resp = await fetch(api.loginprefix + "login_user/" + encodeURIComponent(email), {
       method: "POST",
       body: password,
     });

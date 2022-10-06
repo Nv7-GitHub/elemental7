@@ -15,12 +15,14 @@ export class Nv7SingleAPI extends ElementalBaseAPI implements SuggestionAPI<'dyn
   public saveFile: SaveFileAPI;
   public uid: string;
   public prefix: string;
+  public loginprefix: string;
   public items: PackItem[];
   public hasWifi: boolean = true;
 
   async open(ui?: ElementalLoadingUi): Promise<boolean> {
     try {
       this.prefix = this.config.prefix;
+      this.loginprefix = this.config.loginprefix;
       await login(this, ui);
       await initListUI(this, ui);
     } catch(e) {
