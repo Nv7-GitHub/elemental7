@@ -23,7 +23,7 @@
     "filesize": "^6.1.0",
     "fs-extra": "^7.0.0",
     "howler": "^2.1.1",
-    "jszip": "^3.7.0",
+    "jszip": "^3.8.0",
     "juration": "^0.1.1",
     "markdown-escape": "^1.1.0",
     "marked": "^2.0.3",
